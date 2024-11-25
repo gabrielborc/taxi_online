@@ -1,10 +1,7 @@
-import { db } from '../db';
-import { GetAccountDb } from '../../../core/useCases/getAccount';
-import { SingupDb } from '../../../core/useCases/signup';
+import { db } from './db';
+import { AccountDAO } from '../interfaces/AccountDAO';
 
-interface IAccountDAO extends SingupDb, GetAccountDb {}
-
-export default class AccountDAO implements IAccountDAO {
+export default class AccountDAODatabase implements AccountDAO {
   async findAccountByID(accountID: string) {
     try {
       const [account] = await db.query("select * from ccca.account where account_id = $1", [accountID]);

@@ -1,5 +1,5 @@
 import http from 'http';
-import { pgp } from '../db/db';
+import { pgp } from '../db/postgreSQL/db';
 import createAppExpress from './express/createAppExpress';
 
 let server: http.Server;

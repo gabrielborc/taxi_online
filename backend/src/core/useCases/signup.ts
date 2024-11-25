@@ -19,8 +19,8 @@ function validateCarPlate(carPlate: string) {
   return patternCarPlate.test(carPlate);
 }
 
-export default async function signup(input: any, db: SingupDb) {
-	const account = await db.findAccountByEmail(input.email);
+export default async function signup(input: any, singupData: SingupData, mailerGateway: MailerGateway) {
+	const account = await singupData.findAccountByEmail(input.email);
 
   if (account) throw new Error('Duplicate account');
   if (!validateName(input.name)) throw new Error('Invalid name');
@@ -31,12 +31,17 @@ export default async function signup(input: any, db: SingupDb) {
   const id = input?.id 
     ? input.id 
     : crypto.randomUUID();
-  await db.createAccount({ ...input, id });
+  await singupData.createAccount({ ...input, id });
+  await mailerGateway.send(input.email, 'Welcome', '...');
 
   return { accountId: id };
 }
 
-export interface SingupDb {
+export interface SingupData {
   findAccountByEmail(email: string): Promise<any>;
   createAccount(account: any): Promise<void>;
+}
+
+export interface MailerGateway {
+  send(receipent: string, subejct: string, message: string): Promise<void>;
 }
