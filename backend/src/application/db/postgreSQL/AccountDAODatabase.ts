@@ -1,7 +1,7 @@
 import { db } from './db';
-import { AccountDAO } from '../interfaces/AccountDAO';
+import AccountData from '../../../core/useCases/repositories/AccountData';
 
-export default class AccountDAODatabase implements AccountDAO {
+export default class AccountDAODatabase implements AccountData {
   async findAccountByID(accountID: string) {
     try {
       const [account] = await db.query("select * from ccca.account where account_id = $1", [accountID]);

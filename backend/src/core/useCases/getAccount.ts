@@ -1,7 +1,10 @@
-export default async function getAccount(accountID: string, getAccountData: GetAccountData) {
-  return getAccountData.findAccountByID(accountID);
-}
+import NotFoundError from '../entities/errors/NotFoundError';
+import AccountData from './repositories/AccountData';
 
-export interface GetAccountData {
-  findAccountByID(accountID: string): Promise<any>;
+export default async function getAccount(accountID: string, accountData: AccountData) {
+  const account = await accountData.findAccountByID(accountID);
+
+  if (!account) throw new NotFoundError('Account not found');
+
+  return account;
 }

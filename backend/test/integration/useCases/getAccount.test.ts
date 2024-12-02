@@ -1,14 +1,14 @@
 import getAccount from '../../../src/core/useCases/getAccount';
 import signup from '../../../src/core/useCases/signup';
-import { AccountDAOMemory } from '../../../src/application/db/memory/AccountDAOMemory';
+import AccountDAOMemory from '../../../src/application/db/memory/AccountDAOMemory';
 import MailerGatewayMemory from '../../../src/application/services/MailerGatewayMemory';
 
-let accountDAOMemory: AccountDAOMemory;
-let mailerGatewayMemory: MailerGatewayMemory;
+let accountDAO: AccountDAOMemory;
+let mailerGateway: MailerGatewayMemory;
 
 beforeEach(() => {
-  accountDAOMemory = new AccountDAOMemory();
-  mailerGatewayMemory = new MailerGatewayMemory();
+  accountDAO = new AccountDAOMemory();
+  mailerGateway = new MailerGatewayMemory();
 });
 
 describe('Get account', () => {
@@ -24,17 +24,14 @@ describe('Get account', () => {
       isDriver: true
     };
   
-    await signup(account, accountDAOMemory, mailerGatewayMemory);
-    const searchData = await getAccount(account.id, accountDAOMemory);
+    await signup(account, accountDAO, mailerGateway);
+    const searchData = await getAccount(account.id, accountDAO);
   
     expect(searchData).toEqual(account);
   });
 
-  test('Should fail get account because not found acccount', async () => { 
+  test('Should fail get account because not found account', () => { 
     const accountID = '61b281b9-e7ec-42ab-8480-4c6f42163a5d';
-    
-    const searchData = await getAccount(accountID, accountDAOMemory);
-  
-    expect(searchData).toBeUndefined();
+    expect(() => getAccount(accountID, accountDAO)).rejects.toThrow('Account not found');
   });
 });

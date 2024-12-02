@@ -1,6 +1,6 @@
 import sinon from 'sinon';
 import signup from '../../../src/core/useCases/signup';
-import { AccountDAOMemory } from '../../../src/application/db/memory/AccountDAOMemory';
+import AccountDAOMemory from '../../../src/application/db/memory/AccountDAOMemory';
 import MailerGatewayMemory from '../../../src/application/services/MailerGatewayMemory';
 
 let accountDAOMemory: AccountDAOMemory;
@@ -12,7 +12,7 @@ beforeEach(() => {
 });
 
 describe('Create account', () => {
-  test('Should fail creation account when payload.name is invalid', async () => {
+  test('Should fail creation account when payload.name is invalid', () => {
     const account = {
       name: 'a'
     };
@@ -20,7 +20,7 @@ describe('Create account', () => {
     expect(() => signup(account, accountDAOMemory, mailerGatewayMemory)).rejects.toThrow('Invalid name');
   });
   
-  test('Should fail creation account when payload.email is invalid', async () => {
+  test('Should fail creation account when payload.email is invalid', () => {
     const account = {
       name: 'fulano silva',
       email: 'a'
@@ -29,7 +29,7 @@ describe('Create account', () => {
     expect(() => signup(account, accountDAOMemory, mailerGatewayMemory)).rejects.toThrow('Invalid email');
   });
   
-  test('Should fail creation account when payload.cpf is invalid', async () => {
+  test('Should fail creation account when payload.cpf is invalid', () => {
     const account = {
       name: 'fulano silva',
       email: 'fulano@gmail.com',
@@ -39,7 +39,7 @@ describe('Create account', () => {
     expect(() => signup(account, accountDAOMemory, mailerGatewayMemory)).rejects.toThrow('Invalid CPF');
   });
   
-  test('Should fail creation account when account is driver and payload.carPlate is invalid', async () => {
+  test('Should fail creation account when account is driver and payload.carPlate is invalid', () => {
     const account = {
       name: 'fulano silva',
       email: 'fulano@gmail.com',

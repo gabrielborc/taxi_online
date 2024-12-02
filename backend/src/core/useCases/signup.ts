@@ -1,5 +1,8 @@
 import crypto from 'crypto';
 import { validateCpf } from './validateCpf';
+import AccountData from './repositories/AccountData';
+import DuplicateRecordError from '../entities/errors/DuplicateRecordError';
+import BusinessError from '../entities/errors/BusinessError';
 
 function validateName(name: string) {
   const patternName = /[a-zA-Z] [a-zA-Z]+/
@@ -19,27 +22,22 @@ function validateCarPlate(carPlate: string) {
   return patternCarPlate.test(carPlate);
 }
 
-export default async function signup(input: any, singupData: SingupData, mailerGateway: MailerGateway) {
-	const account = await singupData.findAccountByEmail(input.email);
+export default async function signup(input: any, accountData: AccountData, mailerGateway: MailerGateway) {
+	const account = await accountData.findAccountByEmail(input.email);
 
-  if (account) throw new Error('Duplicate account');
-  if (!validateName(input.name)) throw new Error('Invalid name');
-  if (!validateEmail(input.email)) throw new Error('Invalid email');
-  if (!validateCpf(input.cpf)) throw new Error('Invalid CPF');
-  if (input.isDriver && !validateCarPlate(input.carPlate)) throw new Error('Invalid car plate');
+  if (account) throw new DuplicateRecordError('Duplicate account');
+  if (!validateName(input.name)) throw new BusinessError('Invalid name');
+  if (!validateEmail(input.email)) throw new BusinessError('Invalid email');
+  if (!validateCpf(input.cpf)) throw new BusinessError('Invalid CPF');
+  if (input.isDriver && !validateCarPlate(input.carPlate)) throw new BusinessError('Invalid car plate');
 
   const id = input?.id 
     ? input.id 
     : crypto.randomUUID();
-  await singupData.createAccount({ ...input, id });
+  await accountData.createAccount({ ...input, id });
   await mailerGateway.send(input.email, 'Welcome', '...');
 
   return { accountId: id };
-}
-
-export interface SingupData {
-  findAccountByEmail(email: string): Promise<any>;
-  createAccount(account: any): Promise<void>;
 }
 
 export interface MailerGateway {

@@ -44,7 +44,6 @@ describe('Create account - Test API', () => {
   });
 });
 
-
 describe('Get account - Test API', () => {
   test('Should get account', async () => {
     const account = {

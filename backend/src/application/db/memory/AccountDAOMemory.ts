@@ -1,6 +1,6 @@
-import { AccountDAO } from '../interfaces/AccountDAO';
+import AccountData from '../../../core/useCases/repositories/AccountData';
 
-export class AccountDAOMemory implements AccountDAO {
+export default class AccountDAOMemory implements AccountData {
   private data: any[] = [];
 
   async findAccountByEmail(email: string): Promise<any> {
