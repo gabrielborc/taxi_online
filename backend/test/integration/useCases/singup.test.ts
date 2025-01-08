@@ -1,14 +1,16 @@
 import sinon from 'sinon';
-import signup from '../../../src/core/useCases/signup';
+import Singup from '../../../src/core/useCases/Singup';
 import AccountDAOMemory from '../../../src/application/db/memory/AccountDAOMemory';
 import MailerGatewayMemory from '../../../src/application/services/MailerGatewayMemory';
 
 let accountDAOMemory: AccountDAOMemory;
 let mailerGatewayMemory: MailerGatewayMemory;
+let singup: Singup;
 
 beforeEach(() => {
   accountDAOMemory = new AccountDAOMemory();
   mailerGatewayMemory = new MailerGatewayMemory();
+  singup = new Singup(accountDAOMemory, mailerGatewayMemory);
 });
 
 describe('Create account', () => {
@@ -17,7 +19,7 @@ describe('Create account', () => {
       name: 'a'
     };
   
-    expect(() => signup(account, accountDAOMemory, mailerGatewayMemory)).rejects.toThrow('Invalid name');
+    expect(() => singup.execute(account)).rejects.toThrow('Invalid name');
   });
   
   test('Should fail creation account when payload.email is invalid', () => {
@@ -26,7 +28,7 @@ describe('Create account', () => {
       email: 'a'
     };
   
-    expect(() => signup(account, accountDAOMemory, mailerGatewayMemory)).rejects.toThrow('Invalid email');
+    expect(() => singup.execute(account)).rejects.toThrow('Invalid email');
   });
   
   test('Should fail creation account when payload.cpf is invalid', () => {
@@ -36,7 +38,7 @@ describe('Create account', () => {
       cpf: '000.000.000-00'
     };
   
-    expect(() => signup(account, accountDAOMemory, mailerGatewayMemory)).rejects.toThrow('Invalid CPF');
+    expect(() => singup.execute(account)).rejects.toThrow('Invalid CPF');
   });
   
   test('Should fail creation account when account is driver and payload.carPlate is invalid', () => {
@@ -48,7 +50,7 @@ describe('Create account', () => {
       isDriver: true
     };
   
-    expect(() => signup(account, accountDAOMemory, mailerGatewayMemory)).rejects.toThrow('Invalid car plate');
+    expect(() => singup.execute(account)).rejects.toThrow('Invalid car plate');
   });
   
   test('Should fail creation account when account create account with email already registered', async () => {
@@ -62,10 +64,10 @@ describe('Create account', () => {
       isDriver: true
     };  
   
-    const creationData = await signup(account, accountDAOMemory, mailerGatewayMemory);
+    const creationData = await singup.execute(account);
     
     expect(creationData).toHaveProperty('accountId');
-    expect(() => signup(account, accountDAOMemory, mailerGatewayMemory)).rejects.toThrow('Duplicate account');
+    expect(() => singup.execute(account)).rejects.toThrow('Duplicate account');
   });
   
   test('Should create account of driver', async () => {
@@ -80,9 +82,9 @@ describe('Create account', () => {
       isDriver: true
     };
   
-    const creationData = await signup(account, accountDAOMemory, mailerGatewayMemory);
+    const creationData = await singup.execute(account);
     
-    expect(creationData).toHaveProperty('accountId', account.id);
+    expect(creationData).toHaveProperty('accountId');
   });
   
   test('Should create account of passenger', async () => {
@@ -97,9 +99,9 @@ describe('Create account', () => {
       isDriver: false
     };
   
-    const creationData = await signup(account, accountDAOMemory, mailerGatewayMemory);
+    const creationData = await singup.execute(account);
     
-    expect(creationData).toHaveProperty('accountId', account.id);
+    expect(creationData).toHaveProperty('accountId');
   });
 });
 
@@ -108,10 +110,9 @@ describe('Create account - Test Doubles', () => {
   test('Should create account of passenger with stub', async () => {
     const mailerStub = sinon.stub(MailerGatewayMemory.prototype, 'send').resolves();
     const accountDAOStub1 = sinon.stub(AccountDAOMemory.prototype, 'findAccountByEmail').resolves();
-    const accountDAOStub2 = sinon.stub(AccountDAOMemory.prototype, 'createAccount').resolves();
+    const accountDAOStub2 = sinon.stub(AccountDAOMemory.prototype, 'saveAccount').resolves();
     
     const account = {
-      id: 'a4285a9a-b25c-4a14-a35b-499745432f38',
       name: 'Fulano Silva',
       email: 'fulano3@gmail.com',
       cpf: '959.600.920-69',
@@ -121,9 +122,9 @@ describe('Create account - Test Doubles', () => {
       isDriver: false
     };
     
-    const creationData = await signup(account, accountDAOMemory, mailerGatewayMemory);
+    const creationData = await singup.execute(account);
     
-    expect(creationData).toHaveProperty('accountId', account.id);
+    expect(creationData).toHaveProperty('accountId');
 
     mailerStub.restore();
     accountDAOStub1.restore();
@@ -134,7 +135,6 @@ describe('Create account - Test Doubles', () => {
     const mailerSpy = sinon.stub(MailerGatewayMemory.prototype, 'send');
     
     const account = {
-      id: 'a4285a9a-b25c-4a14-a35b-499745432f38',
       name: 'Fulano Silva',
       email: 'fulano3@gmail.com',
       cpf: '959.600.920-69',
@@ -144,9 +144,9 @@ describe('Create account - Test Doubles', () => {
       isDriver: false
     };
     
-    const creationData = await signup(account, accountDAOMemory, mailerGatewayMemory);
+    const creationData = await singup.execute(account);
     
-    expect(creationData).toHaveProperty('accountId', account.id);
+    expect(creationData).toHaveProperty('accountId');
     expect(mailerSpy.calledOnce).toBeTruthy();
     expect(mailerSpy.calledWith(account.email, 'Welcome', '...')).toBeTruthy();
 
@@ -157,7 +157,6 @@ describe('Create account - Test Doubles', () => {
     const mailerMock = sinon.mock(MailerGatewayMemory.prototype);
     
     const account = {
-      id: 'a4285a9a-b25c-4a14-a35b-499745432f38',
       name: 'Fulano Silva',
       email: 'fulano3@gmail.com',
       cpf: '959.600.920-69',
@@ -171,9 +170,9 @@ describe('Create account - Test Doubles', () => {
       console.log('abc')
     });
     
-    const creationData = await signup(account, accountDAOMemory, mailerGatewayMemory);
+    const creationData = await singup.execute(account);
     
-    expect(creationData).toHaveProperty('accountId', account.id);
+    expect(creationData).toHaveProperty('accountId');
     
     mailerMock.verify();
     mailerMock.restore();

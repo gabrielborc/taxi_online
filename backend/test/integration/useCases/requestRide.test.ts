@@ -1,16 +1,18 @@
 import RideDAOMemory from '../../../src/application/db/memory/RideDAOMemory';
 import AccountDAOMemory from '../../../src/application/db/memory/AccountDAOMemory';
-import requestRide from '../../../src/core/useCases/requestRide';
+import RequestRide from '../../../src/core/useCases/RequestRide';
 
 let accountDAO: AccountDAOMemory;
 let rideDAO: RideDAOMemory;
+let requestRide: RequestRide
 
 beforeEach(async () => {
   accountDAO = new AccountDAOMemory();
   rideDAO = new RideDAOMemory();
+  requestRide = new RequestRide(accountDAO, rideDAO);
 
   const accountDatas = {
-    id: '63c7d92a-aa62-4e49-acf7-459c6b2ae430',
+    accountId: '63c7d92a-aa62-4e49-acf7-459c6b2ae430',
     name: 'Fulano Silva',
     email: 'fulano@gmail.com',
     cpf: '959.600.920-69',
@@ -20,10 +22,10 @@ beforeEach(async () => {
     isDriver: false
   };
 
-  await accountDAO.createAccount(accountDatas);
-  await accountDAO.createAccount({
+  await accountDAO.saveAccount(accountDatas);
+  await accountDAO.saveAccount({
     ...accountDatas,
-    id: '63c7d92a-aa62-4e49-acf7-459c6b2ae432',
+    accountId: '63c7d92a-aa62-4e49-acf7-459c6b2ae432',
     email: 'fulano2@gmail.com',
     isPassenger: false,
     isDriver: true
@@ -40,7 +42,7 @@ describe('Request ride', () => {
       toLong: 1
     };
 
-    expect(() => requestRide(inputRide, accountDAO, rideDAO)).rejects.toThrow('Account not found');
+    expect(() => requestRide.execute(inputRide)).rejects.toThrow('Account not found');
   });
   
   test('should fail request when account is driver', () => {
@@ -52,7 +54,7 @@ describe('Request ride', () => {
       toLong: 1
     };
 
-    expect(() => requestRide(inputRide, accountDAO, rideDAO)).rejects.toThrow('Account is not passeger');
+    expect(() => requestRide.execute(inputRide)).rejects.toThrow('Account is not passeger');
   });
 
   test('should fail request when this ride in progressing', async () => {
@@ -64,8 +66,8 @@ describe('Request ride', () => {
       toLong: 1
     };
     
-    await requestRide(inputRide, accountDAO, rideDAO);
-    expect(() =>  requestRide(inputRide, accountDAO, rideDAO)).rejects.toThrow('Duplicate ride');
+    await requestRide.execute(inputRide);
+    expect(() =>  requestRide.execute(inputRide)).rejects.toThrow('Duplicate ride');
   });
 
   test('should create ride', async () => {
@@ -77,7 +79,7 @@ describe('Request ride', () => {
       toLong: 1
     };
     
-    const result = await requestRide(inputRide, accountDAO, rideDAO);
+    const result = await requestRide.execute(inputRide);
 
     expect(result).toHaveProperty('rideId');
   });

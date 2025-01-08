@@ -1,4 +1,4 @@
-import express from 'express';
+import { Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 
 function handleResponseErrorHttp(err: any) {
@@ -20,12 +20,8 @@ function handleResponseErrorHttp(err: any) {
   return { statusCode: StatusCodes.INTERNAL_SERVER_ERROR, message: 'Internal server error' };
 }
 
-export function handleError(err: any, req: express.Request, res: express.Response, next: express.NextFunction) {
-  if (err) {
-    console.error(err);
-    const { statusCode, message } = handleResponseErrorHttp(err);
-    return res.status(statusCode).json({ message });
-  }
-  
-  next();
+export function handleError(err: any, res: Response) {
+  console.error(err);
+  const { statusCode, message } = handleResponseErrorHttp(err);
+  return res.status(statusCode).json({ message });
 }

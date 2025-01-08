@@ -1,10 +1,12 @@
 import RideDAOMemory from '../../../src/application/db/memory/RideDAOMemory';
-import getRide from '../../../src/core/useCases/getRide';
+import GetRide from '../../../src/core/useCases/GetRide';
 
 let rideDAO: RideDAOMemory;
+let getRide: GetRide;
 
 beforeEach(async () => {
   rideDAO = new RideDAOMemory();
+  getRide = new GetRide(rideDAO);
 });
 
 describe('Get ride', () => {
@@ -23,14 +25,14 @@ describe('Get ride', () => {
       date: new Date()
     };
 
-    await rideDAO.createRide(rideData);
-    const ride = await getRide(rideData.rideId, rideDAO);
+    await rideDAO.saveRide(rideData);
+    const ride = await getRide.execute(rideData.rideId);
 
     expect(ride).toEqual(rideData);
   });
 
   test('Should not find ride', () => {
     const rideID = '61b281b9-e7ec-42ab-8480-4c6f42163a5d';
-    expect(() => getRide(rideID, rideDAO)).rejects.toThrow('Ride not found');
+    expect(() => getRide.execute(rideID)).rejects.toThrow('Ride not found');
   });
 });

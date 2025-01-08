@@ -2,7 +2,7 @@ import { useState } from 'react';
 import './Signup.css';
 
 async function callSignup(account: any) {
-  const response = await fetch('http://localhost:3000/signup', {
+  const response = await fetch('http://localhost:3000/singup', {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify(account)

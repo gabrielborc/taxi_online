@@ -1,4 +1,4 @@
-import { validateCpf } from "../../src/core/useCases/validateCpf";
+import { validateCpf } from "../../src/core/domain/validateCpf";
 
 test("Deve validar um cpf com o digito diferente de zero", function () {
 	const cpf = "97456321558";

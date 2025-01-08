@@ -1,5 +1,7 @@
+import Ride from '../../domain/entities/Ride';
+
 export default interface RideData {
-  findRideByID(rideID: string): Promise<any>;
-  findRideInProgressByPassagerId(passagerId: string): Promise<any>;
-  createRide(ride: any): Promise<void>;
+  findRideById(rideId: string): Promise<Ride|null>;
+  findRideInProgressByPassagerId(passagerId: string): Promise<boolean>;
+  saveRide(ride: Ride): Promise<void>;
 }

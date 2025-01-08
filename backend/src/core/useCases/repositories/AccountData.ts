@@ -1,5 +1,7 @@
+import Account from '../../domain/entities/Account';
+
 export default interface AccountData {
-  findAccountByID(accountID: string): Promise<any>;
-  findAccountByEmail(email: string): Promise<any>;
-  createAccount(account: any): Promise<void>;
+  findAccountById(accountID: string): Promise<Account|null>;
+  findAccountByEmail(email: string): Promise<Account|null>;
+  saveAccount(account: Account): Promise<void>;
 }
