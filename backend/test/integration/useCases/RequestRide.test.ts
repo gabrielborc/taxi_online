@@ -4,7 +4,7 @@ import RequestRide from '../../../src/core/useCases/RequestRide';
 
 let accountDAO: AccountDAOMemory;
 let rideDAO: RideDAOMemory;
-let requestRide: RequestRide
+let requestRide: RequestRide;
 
 beforeEach(async () => {
   accountDAO = new AccountDAOMemory();
@@ -54,7 +54,7 @@ describe('Request ride', () => {
       toLong: 1
     };
 
-    expect(() => requestRide.execute(inputRide)).rejects.toThrow('Account is not passeger');
+    expect(() => requestRide.execute(inputRide)).rejects.toThrow('Account must be from a passenger');
   });
 
   test('should fail request when this ride in progressing', async () => {
@@ -67,7 +67,7 @@ describe('Request ride', () => {
     };
     
     await requestRide.execute(inputRide);
-    expect(() =>  requestRide.execute(inputRide)).rejects.toThrow('Duplicate ride');
+    expect(() =>  requestRide.execute(inputRide)).rejects.toThrow('Passenger already have an active ride');
   });
 
   test('should create ride', async () => {

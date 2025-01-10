@@ -1,7 +1,6 @@
 import Ride from "../../../core/domain/entities/Ride";
 import RideData from "../../../core/useCases/repositories/RideData";
 
-
 export default class RideDAOMemory implements RideData {
   private data: any[] = [];
 
@@ -9,11 +8,20 @@ export default class RideDAOMemory implements RideData {
     return this.data.find((ride) => ride.rideId === rideId);
   }
   
-  async findRideInProgressByPassagerId(passagerId: string): Promise<boolean> {
-    return this.data.some((ride) => ride.passsengerId = passagerId && ride.status !== 'completed' );
+  async hasActiveRideByPassagerId(passengerId: string): Promise<boolean> {
+    return this.data.some((ride) => ride.passengerId === passengerId && ride.status !== 'completed' );
   }
 
-  async saveRide(ride: any): Promise<void> {
+  async hasActiveRideByDriverId(driverId: string): Promise<boolean> {
+    return this.data.some((ride) => ride.driverId === driverId && ['accepted', 'in_progress'].includes(ride.status));
+  }
+
+  async saveRide(ride: Ride): Promise<void> {
     this.data.push(ride);
+  }
+
+  async updateRide(ride: Ride): Promise<void> {
+    const rideIndex = this.data.findIndex(({rideId}) => rideId === ride.rideId);
+    this.data[rideIndex] = ride;
   }
 }

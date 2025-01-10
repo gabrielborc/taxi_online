@@ -13,10 +13,10 @@ export default class RequestRide {
   async execute(input: any) {
     const passenger = await this.accountData.findAccountById(input.passengerId);
     if (!passenger) throw new BusinessError('Account not found');
-    if (!passenger.isPassenger) throw new BusinessError('Account is not passeger');
+    if (!passenger.isPassenger) throw new BusinessError('Account must be from a passenger');
 
-    const hasRideInProgress = await this.rideData.findRideInProgressByPassagerId(passenger.accountId);
-    if (hasRideInProgress) throw new DuplicateRecordError('Duplicate ride');
+    const hasActiveRide = await this.rideData.hasActiveRideByPassagerId(passenger.accountId);
+    if (hasActiveRide) throw new DuplicateRecordError('Passenger already have an active ride');
 
     const ride = Ride.create(input.passengerId, input.fromLat, input.fromLong, input.toLat, input.toLong)
     await this.rideData.saveRide(ride);
